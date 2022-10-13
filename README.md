@@ -1,0 +1,255 @@
+# gabi-cli
+
+`gabi-cli` simplifies the configuration and usage of [Gabi](https://github.com/app-sre/gabi).
+
+## Install
+
+### Option 1: Build from source
+First clone the repository somewhere in your $GOPATH.
+
+Example:
+
+```
+mkdir $GOPATH/src/github.com/cristianoveiga
+cd $GOPATH/src/github.com/cristianoveiga
+git clone git@github.com:cristianoveiga/gabi-cli.git
+```
+
+Next, cd into the gabi folder and run `make install`. This command will build the `gabi` binary and place it in $GOPATH.
+
+
+## Configuration
+
+The `gabi-cli` configuration is done via `profiles` stored in the `$HOME/.config/gabi/gabi.json` file. Here is what the file should look like for two profiles:
+
+```
+[
+  {
+    "name": "ams-stage",
+    "alias": "stage",
+    "url": "https://...",
+    "token": "sha256~...",
+    "current": true
+  },
+  {
+    "name": "ams-production",
+    "alias": "production",
+    "url": "https://...",
+    "token": "sha256~...",
+    "current": false
+  }
+]
+```
+
+Note: This configuration can be bootstraped via the gabi config init command (see details below) 
+
+## Usage
+
+The two main commands of gabi-cli are `config` and `exec`.
+
+### Config
+
+Gets or Sets the gabi-cli configs.
+
+`gabi config -h`
+
+```
+Gets or Sets the gabi-cli configs
+
+Usage:
+  gabi configure [command]
+
+Aliases:
+  configure, config
+
+Available Commands:
+  allprofiles       Gets all profiles currently configured for gabi-cli
+  currentprofile    Gets the current profile
+  init              Initializes a gabi-cli config by creating a gabi.json config file under the ~/.config/gabi directory
+  setcurrentprofile Sets the current profile
+  settoken          Sets the token for current profile
+  seturl            Sets the url for current profile
+```
+
+Get started by creating the gabi config file:
+
+`gabi config init`
+
+`Gabi init success! Check /$HOME/.config/gabi/gabi.json for details and complete the setup.`
+
+This will create the `gabi.json` in the following format:
+
+```
+[
+  {
+    "name": "default",
+    "alias": "default",
+    "url": "",
+    "token": "",
+    "current": true
+  }
+]
+```
+
+As a next step you can configure the URL and Token (either editing the `gabi.json` file or using the `seturl` and `settoken` commands)
+
+`gabi config seturl https://XXX...`
+
+`gabi config settoken sha256~XXX...`
+
+Confirm everything is ready by running the `gabi config currentprofile` command
+
+```
+{
+  "name": "default",
+  "alias": "default",
+  "url": "https://XXX...",
+  "token": "sha256~XXX...",
+  "current": true
+}
+```
+
+Note: the token attribute will be redacted for security.
+
+### Exec
+
+Executes queries using the gabi-cli.
+
+`gabi exec -h`
+
+```
+ Executes a gabi query
+
+Usage:
+  gabi execute [flags]
+
+Aliases:
+  execute, exec
+
+Flags:
+      --csv    CSV output
+  -h, --help   help for execute
+      --raw    Raw output
+```
+
+By default, gabi-cli will format the output as json.
+
+Here are some examples of what output looks like:
+
+#### JSON Output
+
+`gabi exec "select * from cloud_resources where resource_type='compute.node' and cloud_provider='aws' limit 2"`
+
+```
+[
+  {
+    "active": "true",
+    "category": "compute_optimized",
+    "category_pretty": "Compute optimized",
+    "cloud_provider": "aws",
+    "cpu_cores": "48",
+    "created_at": "0001-01-01T00:00:00Z",
+    "deleted_at": "",
+    "generic_name": "highcpu-48-5a",
+    "id": "c5a.12xlarge",
+    "memory": "103079215104",
+    "memory_pretty": "96",
+    "name_pretty": "c5a.12xlarge - Compute optimized",
+    "resource_type": "compute.node",
+    "size_pretty": "12xlarge",
+    "updated_at": "2022-10-10T13:55:03.159046Z"
+  },
+  {
+    "active": "true",
+    "category": "compute_optimized",
+    "category_pretty": "Compute optimized",
+    "cloud_provider": "aws",
+    "cpu_cores": "64",
+    "created_at": "0001-01-01T00:00:00Z",
+    "deleted_at": "",
+    "generic_name": "highcpu-64-5a",
+    "id": "c5a.16xlarge",
+    "memory": "137438953472",
+    "memory_pretty": "128",
+    "name_pretty": "c5a.16xlarge - Compute optimized",
+    "resource_type": "compute.node",
+    "size_pretty": "16xlarge",
+    "updated_at": "2022-10-10T13:55:03.162961Z"
+  }
+]
+```
+
+#### CSV Output
+
+Prints a comma-separated output in the terminal
+
+`gabi exec "select * from cloud_resources where resource_type='compute.node' and cloud_provider='aws' limit 2" --csv`
+
+```
+id,created_at,updated_at,deleted_at,name_pretty,generic_name,cloud_provider,resource_type,category,category_pretty,cpu_cores,memory,memory_pretty,size_pretty,active
+c5a.12xlarge,0001-01-01T00:00:00Z,2022-10-10T13:55:03.159046Z,,c5a.12xlarge - Compute optimized,highcpu-48-5a,aws,compute.node,compute_optimized,Compute optimized,48,103079215104,96,12xlarge,true
+c5a.16xlarge,0001-01-01T00:00:00Z,2022-10-10T13:55:03.162961Z,,c5a.16xlarge - Compute optimized,highcpu-64-5a,aws,compute.node,compute_optimized,Compute optimized,64,137438953472,128,16xlarge,true
+```
+
+#### RAW Output
+
+The original gabi response without any formatting
+
+`gabi exec "select * from cloud_resources where resource_type='compute.node' and cloud_provider='aws' limit 2" --raw`
+
+```
+[
+  [
+     "id",
+     "created_at",
+     "updated_at",
+     "deleted_at",
+     "name_pretty",
+     "generic_name",
+     "cloud_provider",
+     "resource_type",
+     "category",
+     "category_pretty",
+     "cpu_cores",
+     "memory",
+     "memory_pretty",
+     "size_pretty",
+     "active"
+  ],
+  [
+     "c5a.12xlarge",
+     "0001-01-01T00:00:00Z",
+     "2022-10-10T13:55:03.159046Z",
+     "",
+     "c5a.12xlarge - Compute optimized",
+     "highcpu-48-5a",
+     "aws",
+     "compute.node",
+     "compute_optimized",
+     "Compute optimized",
+     "48",
+     "103079215104",
+     "96",
+     "12xlarge",
+     "true"
+  ],
+  [
+     "c5a.16xlarge",
+     "0001-01-01T00:00:00Z",
+     "2022-10-10T13:55:03.162961Z",
+     "",
+     "c5a.16xlarge - Compute optimized",
+     "highcpu-64-5a",
+     "aws",
+     "compute.node",
+     "compute_optimized",
+     "Compute optimized",
+     "64",
+     "137438953472",
+     "128",
+     "16xlarge",
+     "true"
+  ]
+]
+```
+
