@@ -1,9 +1,11 @@
 package exec
 
 import (
-	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"os"
+	"strings"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	gabi "github.com/cristianoveiga/gabi-cli/pkg/client"
@@ -12,11 +14,10 @@ import (
 
 // Cmd represents the execute command
 var Cmd = &cobra.Command{
-	Use:     "execute",
+	Use:     "execute [string] | stdin",
 	Short:   "Executes a gabi query",
-	Long:    "Executes a gabi query",
+	Long:    "Executes a gabi query received from a string as argument or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)",
 	Run:     run,
-	Args:    cobra.ExactArgs(1),
 	Aliases: []string{"exec"},
 }
 
@@ -52,10 +53,19 @@ func run(cmd *cobra.Command, argv []string) {
 		logErrAndExit(msg)
 	}
 
-	q := argv[0]
-	if len(q) == 0 {
-		logErrAndExit("You must provide a query")
+	var query string
+	if len(argv) > 0 {
+		query = argv[0]
+	} else {
+		input, readErr := ioutil.ReadAll(os.Stdin)
+		if readErr != nil {
+			logErrAndExit(readErr.Error())
+		} else {
+			query = string(input)
+		}
 	}
+
+	query = formatQuery(query)
 
 	// todo: define output types as enums
 	output := "json"
@@ -72,10 +82,16 @@ func run(cmd *cobra.Command, argv []string) {
 	}
 
 	qs := gabi.NewQueryService(gabiCli)
-	QueryErr := qs.Query(q, output)
+	QueryErr := qs.Query(query, output)
 	if QueryErr != nil {
 		logErrAndExit(QueryErr.Error())
 	}
+}
+
+func formatQuery(query string) string {
+	q := strings.ReplaceAll(query, "\n", " ")
+	q = strings.ReplaceAll(q, "\t", " ")
+	return q
 }
 
 func logErrAndExit(err string) {

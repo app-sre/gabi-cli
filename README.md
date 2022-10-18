@@ -118,10 +118,10 @@ Executes queries using the gabi-cli.
 `gabi exec -h`
 
 ```
- Executes a gabi query
+Executes a gabi query received from a string as argument or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)
 
 Usage:
-  gabi execute [flags]
+  gabi execute [string] | stdin [flags]
 
 Aliases:
   execute, exec
@@ -253,3 +253,68 @@ The original gabi response without any formatting
 ]
 ```
 
+
+### Multi-line Select Statements
+
+Multi-line Select statements can be performed using HEREDOC or directly via the Standard Input (stdin)
+
+#### Using HEREDOC
+
+```
+gabi exec << EOF 
+select 
+    count(id) as total_resources,
+    category as cat
+from cloud_resources cr
+group by category
+having count(id) > 50
+EOF
+```
+
+```
+[
+  {
+    "cat": "compute_optimized",
+    "total_resources": "100"
+  },
+  {
+    "cat": "memory_optimized",
+    "total_resources": "200"
+  }
+    {
+    "cat": "general_purpose",
+    "total_resources": "300"
+  }
+]
+```
+
+
+#### Directly from Standard Input (stdin)
+
+1. Type `gabi exec` and press `Enter`
+2. Type your query (it can include line breaks and tabs)
+3. When you are done typing it, press `Enter` again to move to the next line and then `CTRL+D` to indicate the end of the input - this will trigger the query execution. Alternatively, press `CTRL+C` to Cancel.
+
+```
+gabi exec [ENTER]
+select count(id) as total_resources,
+       cloud_provider as provider
+from cloud_resources cr
+group by cloud_provider
+having count(id) > 10
+
+[Ctrl+D]
+```
+
+```
+[
+  {
+    "provider": "aws",
+    "total_resources": "50"
+  },
+  {
+    "provider": "gcp",
+    "total_resources": "50"
+  }
+]
+```
