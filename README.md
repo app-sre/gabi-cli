@@ -127,9 +127,10 @@ Aliases:
   execute, exec
 
 Flags:
-      --csv    CSV output
-  -h, --help   help for execute
-      --raw    Raw output
+      --csv              CSV output
+  -h, --help             help for execute
+      --raw              Raw output
+      --show-row-count   Prints out the number of rows returned by your query
 ```
 
 By default, gabi-cli will format the output as json.

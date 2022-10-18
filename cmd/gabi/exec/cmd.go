@@ -22,9 +22,10 @@ var Cmd = &cobra.Command{
 }
 
 var args struct {
-	json bool
-	raw  bool
-	csv  bool
+	json         bool
+	raw          bool
+	csv          bool
+	showRowCount bool
 }
 
 func init() {
@@ -40,6 +41,12 @@ func init() {
 		"csv",
 		false,
 		"CSV output",
+	)
+	flags.BoolVar(
+		&args.showRowCount,
+		"show-row-count",
+		false,
+		"Prints out the number of rows returned by your query",
 	)
 }
 
@@ -82,7 +89,7 @@ func run(cmd *cobra.Command, argv []string) {
 	}
 
 	qs := gabi.NewQueryService(gabiCli)
-	QueryErr := qs.Query(query, output)
+	QueryErr := qs.Query(query, output, args.showRowCount)
 	if QueryErr != nil {
 		logErrAndExit(QueryErr.Error())
 	}

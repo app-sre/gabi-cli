@@ -22,7 +22,7 @@ func NewQueryService(c *Client) QueryService {
 	return QueryService{client: c}
 }
 
-func (s QueryService) Query(q string, output string) error {
+func (s QueryService) Query(q string, output string, showRowCount bool) error {
 	data := fmt.Sprintf("{\"query\": \"%s\"}", q)
 	payload := strings.NewReader(data)
 	url := s.client.baseURL + "/query"
@@ -69,7 +69,6 @@ func (s QueryService) Query(q string, output string) error {
 	}
 
 	result := dic["result"]
-
 	switch output {
 	case "raw":
 		printRaw(result)
@@ -78,7 +77,17 @@ func (s QueryService) Query(q string, output string) error {
 	case "csv":
 		printCSV(result)
 	}
+
+	if showRowCount {
+		printRowCount(result)
+	}
+
 	return nil
+}
+
+// printRowCount prints the number of rows returned by the query
+func printRowCount(result interface{}) {
+	fmt.Printf("your query returned %d row(s)\n", getRowsCount(result))
 }
 
 // printRaw returns the raw gabi's response
@@ -155,4 +164,16 @@ func getRow(collection reflect.Value, attrs []string) row {
 		r[attrs[i]] = v
 	}
 	return r
+}
+
+func getRowsCount(result interface{}) int {
+	rowCount := 0
+	if reflect.TypeOf(result).Kind() == reflect.Slice {
+		resultVal := reflect.ValueOf(result)
+		// removes the header from the rowcount
+		if resultVal.Len() > 1 {
+			rowCount = resultVal.Len() - 1
+		}
+	}
+	return rowCount
 }
