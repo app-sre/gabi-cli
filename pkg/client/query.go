@@ -43,6 +43,10 @@ func (s QueryService) Query(q string, output string) error {
 		return errors.New("unable to execute query. Error: 403 Forbidden. Please review your token and try again")
 	}
 
+	if res.StatusCode == 401 {
+		return errors.New("unable to execute query. Error: 401 Unauthorized. Please review your permissions and try again")
+	}
+
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return err
