@@ -15,8 +15,7 @@ cd $GOPATH/src/github.com/cristianoveiga
 git clone git@github.com:cristianoveiga/gabi-cli.git
 ```
 
-Next, cd into the gabi folder and run `make install`. This command will build the `gabi` binary and place it in $GOPATH.
-
+Next, cd into the gabi folder and run `make`. This command will build the `gabi` binary and place it in $GOPATH.
 
 ## Configuration
 
@@ -41,7 +40,7 @@ The `gabi-cli` configuration is done via `profiles` stored in the `$HOME/.config
 ]
 ```
 
-Note: This configuration can be bootstraped via the gabi config init command (see details below) 
+Note: This configuration can be bootstraped via the gabi config init command (see details below)
 
 ## Usage
 
