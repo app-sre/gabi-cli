@@ -17,7 +17,9 @@ var configFile = configFolder + "/" + configFileName
 
 func Init() error {
 	if validConfig() {
-		log.Warning("A valid configuration for gabi already exists. Check %s for details", configFile)
+		log.WithFields(log.Fields{
+			"configuration": configFile,
+		}).Warning("A valid configuration for gabi already exists")
 		return nil
 	}
 
