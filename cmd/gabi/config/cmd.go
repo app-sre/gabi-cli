@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/cristianoveiga/gabi-cli/cmd/gabi/utils"
 	"github.com/cristianoveiga/gabi-cli/pkg/config"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
