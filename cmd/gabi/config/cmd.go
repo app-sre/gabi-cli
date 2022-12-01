@@ -1,11 +1,11 @@
 package config
 
 import (
-	"github.com/cristianoveiga/gabi-cli/cmd/gabi/utils"
-	"github.com/cristianoveiga/gabi-cli/pkg/config"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/cristianoveiga/gabi-cli/cmd/gabi/utils"
+	"github.com/cristianoveiga/gabi-cli/pkg/config"
 )
 
 // Cmd represents the configure command
@@ -108,6 +108,32 @@ var setProfileCmd = &cobra.Command{
 	},
 }
 
+// enableHistoryCmd represents the enablehistory command
+var enableHistoryCmd = &cobra.Command{
+	Use:   "enablehistory",
+	Short: "Enables query history for the current profile",
+	Long:  `Enables query history for the current profile`,
+	Run: func(cmd *cobra.Command, args []string) {
+		err := config.SetEnableHistory(true)
+		if err != nil {
+			log.Error(err)
+		}
+	},
+}
+
+// disableHistoryCmd represents the disablehistory command
+var disableHistoryCmd = &cobra.Command{
+	Use:   "disablehistory",
+	Short: "Disables query history for the current profile",
+	Long:  `Disables query history for the current profile`,
+	Run: func(cmd *cobra.Command, args []string) {
+		err := config.SetEnableHistory(false)
+		if err != nil {
+			log.Error(err)
+		}
+	},
+}
+
 func init() {
 	Cmd.AddCommand(InitCmd)
 	Cmd.AddCommand(currentProfileCmd)
@@ -115,5 +141,6 @@ func init() {
 	Cmd.AddCommand(setTokenCmd)
 	Cmd.AddCommand(setURLCmd)
 	Cmd.AddCommand(setProfileCmd)
-
+	Cmd.AddCommand(enableHistoryCmd)
+	Cmd.AddCommand(disableHistoryCmd)
 }

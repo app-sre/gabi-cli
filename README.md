@@ -318,3 +318,50 @@ having count(id) > 10
   }
 ]
 ```
+
+### History
+
+Gabi-CLI can keep track of the executed queries.
+
+This feature is disabled by default and can be enabled via the `gabi config enablehistory` command.
+
+`gabi history -h`
+
+```
+Executes history operations
+
+Usage:
+gabi history [command]
+
+Available Commands:
+clear       Clears gabi-cli query history
+show        Shows gabi-cli query history
+
+Flags:
+-h, --help   help for history
+```
+
+After a few queries, you should be able to run the `gabi history show` command which will output something like this:
+
+```
+5 select * from cloud_resources where resource_type='compute.node' and cloud_provider='aws'
+4 select * from cloud_resources where resource_type='compute.node' and cloud_provider='gcp'
+3 select count(id) as total_resources, category as cat from cloud_resources cr group by category having count(id) > 50 
+2 select count(id) as total_resources, cloud_provider as provider from cloud_resources cr group by cloud_provider having count(id) > 10 
+1 select count(*) from cloud_resources
+```
+
+Note: the `gabi history show` command returns the last 100 queries. This number can be overridden with the flag `--max-rows`:
+
+`gabi history show -h`
+
+```
+...
+
+Flags:
+-h, --help           help for show
+--max-rows int   Maximum number of rows returned in the show command (default 100)
+```
+
+
+Use the `gabi history clear` command to wipe out all query logs.

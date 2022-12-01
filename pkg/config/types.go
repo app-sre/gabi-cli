@@ -8,11 +8,12 @@ import (
 type Profiles []*Profile
 
 type Profile struct {
-	Name    string `json:"name"`
-	Alias   string `json:"alias"`
-	URL     string `json:"url"`
-	Token   string `json:"token"`
-	Current bool   `json:"current"`
+	Name          string `json:"name"`
+	Alias         string `json:"alias"`
+	URL           string `json:"url"`
+	Token         string `json:"token"`
+	Current       bool   `json:"current"`
+	EnableHistory bool   `json:"enable_history"`
 }
 
 func (profile *Profile) Redact() Profile {
