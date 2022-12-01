@@ -8,12 +8,12 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+
+	. "github.com/cristianoveiga/gabi-cli/pkg/common"
 )
 
-var homeFolder = os.Getenv("HOME")
-var configFolder = homeFolder + "/.config/gabi"
 var configFileName = "gabi.json"
-var configFile = configFolder + "/" + configFileName
+var configFile = ConfigFolder + "/" + configFileName
 
 func Init() error {
 	if validConfig() {
@@ -25,11 +25,12 @@ func Init() error {
 
 	var profiles Profiles
 	profile := Profile{
-		Name:    "default",
-		Alias:   "default",
-		URL:     "",
-		Token:   "",
-		Current: true,
+		Name:          "default",
+		Alias:         "default",
+		URL:           "",
+		Token:         "",
+		Current:       true,
+		EnableHistory: false,
 	}
 	profiles = append(profiles, &profile)
 	err := writeConfigs(profiles)
@@ -154,10 +155,39 @@ func SetURL(url string) error {
 	return nil
 }
 
+func SetEnableHistory(enable bool) error {
+	allProfiles, err := AllProfiles()
+	if err != nil {
+		return err
+	}
+
+	for _, profile := range allProfiles {
+		if profile.Current {
+			profile.EnableHistory = enable
+			break
+		}
+	}
+
+	writeErr := writeConfigs(allProfiles)
+	if writeErr != nil {
+		return errors.New("failed to toggle history creation")
+	}
+
+	var action string
+	if enable {
+		action = "enabled"
+	} else {
+		action = "disabled"
+	}
+
+	fmt.Printf("History successfully %s! \n", action)
+	return nil
+}
+
 func writeConfigs(profiles Profiles) error {
-	_, err := os.Stat(configFolder)
+	_, err := os.Stat(ConfigFolder)
 	if os.IsNotExist(err) {
-		mkdirErr := os.Mkdir(configFolder, 0700)
+		mkdirErr := os.Mkdir(ConfigFolder, 0700)
 		if mkdirErr != nil {
 			return mkdirErr
 		}

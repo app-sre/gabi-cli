@@ -10,6 +10,7 @@ import (
 
 	gabi "github.com/cristianoveiga/gabi-cli/pkg/client"
 	"github.com/cristianoveiga/gabi-cli/pkg/config"
+	"github.com/cristianoveiga/gabi-cli/pkg/history"
 )
 
 // Cmd represents the execute command
@@ -92,6 +93,11 @@ func run(cmd *cobra.Command, argv []string) {
 	QueryErr := qs.Query(query, output, args.showRowCount)
 	if QueryErr != nil {
 		logErrAndExit(QueryErr.Error())
+	}
+
+	// logs the query if history is enabled and the query didn't throw any errors
+	if c.EnableHistory {
+		history.PushQuery(query)
 	}
 }
 
