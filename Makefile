@@ -1,3 +1,6 @@
+build:
+	go build -o gabi ./cmd/gabi || exit 1
+
 install:
 	go install ./cmd/gabi
 

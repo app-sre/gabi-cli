@@ -53,11 +53,10 @@ jobs:
             env["GOOS"] = goos
             env["GOARCH"] = goarch
             # Build the binary:
-            args = ["make", "cmds"]
+            args = ["make", "build"]
             subprocess.run(check=True, env=env, args=args)
             # Copy the generated binary to the assets directory:
-            binary = "
-            -support"
+            binary = "gabi"
             if goos == "windows":
                 binary += ".exe"
             asset = os.path.join(assets, f"gabi-cli-{goos}-{goarch}")
