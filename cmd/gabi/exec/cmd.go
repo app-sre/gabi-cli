@@ -15,9 +15,9 @@ import (
 
 // Cmd represents the execute command
 var Cmd = &cobra.Command{
-	Use:     "execute [string] | stdin",
+	Use:     "execute [string] | [file_path] | stdin",
 	Short:   "Executes a gabi query",
-	Long:    "Executes a gabi query received from a string as argument or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)",
+	Long:    "Executes a gabi query received from a string as argument, from a file path which gets read or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)",
 	Run:     run,
 	Aliases: []string{"exec"},
 }
@@ -63,7 +63,19 @@ func run(cmd *cobra.Command, argv []string) {
 
 	var query string
 	if len(argv) > 0 {
-		query = argv[0]
+		// If the given arguments is a path, attempt reading the file. Otherwise, assume a query string was given.
+		if _, fileExistsErr := os.Stat(argv[0]); fileExistsErr == nil {
+			body, readFileErr := ioutil.ReadFile(argv[0])
+			if readFileErr != nil {
+				logErrAndExit(readFileErr.Error())
+			}
+
+			log.Debugf(`Query read from '%s'`, argv[0])
+
+			query = string(body)
+		} else {
+			query = argv[0]
+		}
 	} else {
 		input, readErr := ioutil.ReadAll(os.Stdin)
 		if readErr != nil {
