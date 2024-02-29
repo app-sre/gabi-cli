@@ -3,6 +3,7 @@ package exec
 import (
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -12,6 +13,9 @@ import (
 	"github.com/cristianoveiga/gabi-cli/pkg/config"
 	"github.com/cristianoveiga/gabi-cli/pkg/history"
 )
+
+// twoMoreWhiteSpacesRegex holds the regular expression to match two or more subsequent white spaces.
+var twoMoreWhiteSpacesRegex *regexp.Regexp
 
 // Cmd represents the execute command
 var Cmd = &cobra.Command{
@@ -49,6 +53,9 @@ func init() {
 		false,
 		"Prints out the number of rows returned by your query",
 	)
+
+	// Compile the regex that matches two or more subsequent white spaces.
+	twoMoreWhiteSpacesRegex = regexp.MustCompile(`\s{2,}`)
 }
 
 func run(cmd *cobra.Command, argv []string) {
@@ -86,6 +93,7 @@ func run(cmd *cobra.Command, argv []string) {
 	}
 
 	query = formatQuery(query)
+	log.Debugf("Formated query: %s", query)
 
 	// todo: define output types as enums
 	output := "json"
@@ -113,9 +121,18 @@ func run(cmd *cobra.Command, argv []string) {
 	}
 }
 
+// formatQuery replaces all the new lines, tab characters and the subsequent white spaces with a single white space,
+// and also removes the leading and trailing white spaces.
 func formatQuery(query string) string {
+	// Replace the new lines.
 	q := strings.ReplaceAll(query, "\n", " ")
+	// Replace the tab characters.
 	q = strings.ReplaceAll(q, "\t", " ")
+	// Replace two or more consecutive white spaces.
+	q = twoMoreWhiteSpacesRegex.ReplaceAllString(q, " ")
+	// Remove the leading and trailing white spaces.
+	q = strings.TrimSpace(q)
+
 	return q
 }
 
