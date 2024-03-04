@@ -117,10 +117,10 @@ Executes queries using the gabi-cli.
 `gabi exec -h`
 
 ```
-Executes a gabi query received from a string as argument or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)
+Executes a gabi query received from a string as argument, from a file path which gets read or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)
 
 Usage:
-  gabi execute [string] | stdin [flags]
+  gabi execute [string] | [file_path] | stdin [flags]
 
 Aliases:
   execute, exec

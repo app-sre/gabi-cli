@@ -3,6 +3,7 @@ package exec
 import (
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -13,11 +14,14 @@ import (
 	"github.com/cristianoveiga/gabi-cli/pkg/history"
 )
 
+// twoMoreWhiteSpacesRegex holds the regular expression to match two or more subsequent white spaces.
+var twoMoreWhiteSpacesRegex *regexp.Regexp
+
 // Cmd represents the execute command
 var Cmd = &cobra.Command{
-	Use:     "execute [string] | stdin",
+	Use:     "execute [string] | [file_path] | stdin",
 	Short:   "Executes a gabi query",
-	Long:    "Executes a gabi query received from a string as argument or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)",
+	Long:    "Executes a gabi query received from a string as argument, from a file path which gets read or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)",
 	Run:     run,
 	Aliases: []string{"exec"},
 }
@@ -49,6 +53,9 @@ func init() {
 		false,
 		"Prints out the number of rows returned by your query",
 	)
+
+	// Compile the regex that matches two or more subsequent white spaces.
+	twoMoreWhiteSpacesRegex = regexp.MustCompile(`\s{2,}`)
 }
 
 func run(cmd *cobra.Command, argv []string) {
@@ -63,7 +70,19 @@ func run(cmd *cobra.Command, argv []string) {
 
 	var query string
 	if len(argv) > 0 {
-		query = argv[0]
+		// If the given arguments is a path, attempt reading the file. Otherwise, assume a query string was given.
+		if _, fileExistsErr := os.Stat(argv[0]); fileExistsErr == nil {
+			body, readFileErr := ioutil.ReadFile(argv[0])
+			if readFileErr != nil {
+				logErrAndExit(readFileErr.Error())
+			}
+
+			log.Debugf(`Query read from '%s'`, argv[0])
+
+			query = string(body)
+		} else {
+			query = argv[0]
+		}
 	} else {
 		input, readErr := ioutil.ReadAll(os.Stdin)
 		if readErr != nil {
@@ -74,6 +93,7 @@ func run(cmd *cobra.Command, argv []string) {
 	}
 
 	query = formatQuery(query)
+	log.Debugf("Formated query: %s", query)
 
 	// todo: define output types as enums
 	output := "json"
@@ -101,9 +121,18 @@ func run(cmd *cobra.Command, argv []string) {
 	}
 }
 
+// formatQuery replaces all the new lines, tab characters and the subsequent white spaces with a single white space,
+// and also removes the leading and trailing white spaces.
 func formatQuery(query string) string {
+	// Replace the new lines.
 	q := strings.ReplaceAll(query, "\n", " ")
+	// Replace the tab characters.
 	q = strings.ReplaceAll(q, "\t", " ")
+	// Replace two or more consecutive white spaces.
+	q = twoMoreWhiteSpacesRegex.ReplaceAllString(q, " ")
+	// Remove the leading and trailing white spaces.
+	q = strings.TrimSpace(q)
+
 	return q
 }
 

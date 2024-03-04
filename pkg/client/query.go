@@ -1,9 +1,11 @@
 package gabi
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -14,6 +16,11 @@ import (
 
 type row map[string]string
 
+// OutputQuery represents the structure which Gabi expects when receiving a query as a JSON file.
+type OutputQuery struct {
+	Query string `json:"query"`
+}
+
 type QueryService struct {
 	client *Client
 }
@@ -23,10 +30,16 @@ func NewQueryService(c *Client) QueryService {
 }
 
 func (s QueryService) Query(q string, output string, showRowCount bool) error {
-	data := fmt.Sprintf("{\"query\": \"%s\"}", q)
-	payload := strings.NewReader(data)
+	// Marshal the given query to JSON. This way, any specified double quotes will be escaped for us.
+	marshalledQuery, err := json.Marshal(OutputQuery{Query: q})
+	if err != nil {
+		return err
+	}
+
+	log.Debugf("Marshalled query to be sent to Gabi: %s", marshalledQuery)
+
 	url := s.client.baseURL + "/query"
-	req, err := http.NewRequest("POST", url, payload)
+	req, err := http.NewRequest("POST", url, bytes.NewReader(marshalledQuery))
 	if err != nil {
 		return err
 	}
