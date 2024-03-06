@@ -3,6 +3,7 @@ package exec
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -19,9 +20,9 @@ var twoMoreWhiteSpacesRegex *regexp.Regexp
 
 // Cmd represents the execute command
 var Cmd = &cobra.Command{
-	Use:     "execute [string] | [file_path] | stdin",
+	Use:     "execute [string] | [sql_file_path] | stdin ",
 	Short:   "Executes a gabi query",
-	Long:    "Executes a gabi query received from a string as argument, from a file path which gets read or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)",
+	Long:    `Executes a gabi query received from a string as argument, from the file contents specified by a file path with an ".sql" extension, or from stdin. When using stdin, press Enter to move to the next line and then CTRL+D to execute the query (or CTRL+C to Cancel)`,
 	Run:     run,
 	Aliases: []string{"exec"},
 }
@@ -72,6 +73,10 @@ func run(cmd *cobra.Command, argv []string) {
 	if len(argv) > 0 {
 		// If the given arguments is a path, attempt reading the file. Otherwise, assume a query string was given.
 		if _, fileExistsErr := os.Stat(argv[0]); fileExistsErr == nil {
+			if filepath.Ext(argv[0]) != ".sql" {
+				logErrAndExit(`the specified file must have an ".sql" extension`)
+			}
+
 			body, readFileErr := ioutil.ReadFile(argv[0])
 			if readFileErr != nil {
 				logErrAndExit(readFileErr.Error())
