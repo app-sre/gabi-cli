@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cristianoveiga/gabi-cli/cmd/gabi/config"
+	"github.com/cristianoveiga/gabi-cli/cmd/gabi/db"
 	"github.com/cristianoveiga/gabi-cli/cmd/gabi/exec"
 	"github.com/cristianoveiga/gabi-cli/cmd/gabi/history"
 	"github.com/cristianoveiga/gabi-cli/cmd/gabi/version"
@@ -84,6 +85,7 @@ func init() {
 	rootCmd.AddCommand(config.Cmd)
 	rootCmd.AddCommand(exec.Cmd)
 	rootCmd.AddCommand(history.Cmd)
+	rootCmd.AddCommand(db.Cmd)
 
 	// Set the log level before each command runs.
 	cobra.OnInitialize(initLogLevel)
