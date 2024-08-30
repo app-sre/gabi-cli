@@ -10,12 +10,12 @@ First clone the repository somewhere in your $GOPATH.
 Example:
 
 ```
-mkdir $GOPATH/src/github.com/cristianoveiga
-cd $GOPATH/src/github.com/cristianoveiga
-git clone git@github.com:cristianoveiga/gabi-cli.git
+mkdir $GOPATH/src/github.com/app-sre
+cd $GOPATH/src/github.com/app-sre
+git clone git@github.com:app-sre/gabi-cli.git
 ```
 
-Next, cd into the gabi folder and run `make`. This command will build the `gabi` binary and place it in $GOPATH.
+Next, cd into the `gabi-cli` folder and run `make`. This command will build the `gabi` binary and place it in $GOPATH.
 
 ## Configuration
 
