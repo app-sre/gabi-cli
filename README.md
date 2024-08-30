@@ -10,8 +10,8 @@ First clone the repository somewhere in your $GOPATH.
 Example:
 
 ```
-mkdir $GOPATH/src/github.com/app-sre
-cd $GOPATH/src/github.com/app-sre
+mkdir -p $(go env GOPATH)/src/github.com/app-sre
+cd $(go env GOPATH)/src/github.com/app-sre
 git clone git@github.com:app-sre/gabi-cli.git
 ```
 
