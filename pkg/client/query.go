@@ -70,6 +70,11 @@ func (s QueryService) Query(q string, output string, showRowCount bool) error {
 		return errors.New(string(body))
 	}
 
+	if strings.Contains(string(body), "The service instance has expired") {
+		return errors.New(strings.TrimSpace(string(body)) +
+			" -- Please extend the `expirationDate` in the deployment config.")
+	}
+
 	dic := map[string]interface{}{}
 	if err = json.Unmarshal(body, &dic); err != nil {
 		return err
