@@ -2,6 +2,7 @@ package gabi
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/cristianoveiga/gabi-cli/pkg/config"
 )
@@ -15,7 +16,7 @@ type Client struct {
 func NewClient(profile config.Profile) (*Client, error) {
 	c := Client{
 		httpClient: &http.Client{},
-		baseURL:    profile.URL,
+		baseURL:    strings.TrimSuffix(profile.URL, "/"),
 		Token:      profile.Token,
 	}
 	return &c, nil
