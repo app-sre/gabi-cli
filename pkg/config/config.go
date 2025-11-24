@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -141,7 +142,7 @@ func SetURL(url string) error {
 
 	for _, profile := range allProfiles {
 		if profile.Current {
-			profile.URL = url
+			profile.URL = strings.TrimSuffix(url, "/")
 			break
 		}
 	}
